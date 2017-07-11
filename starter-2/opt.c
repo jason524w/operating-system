@@ -31,6 +31,9 @@ llnode* opt_current;
 int* opt_distance;
 int count;
 
+//our strategy is to traverse the list from current node, calculate the distance of each
+//physical memory frame, choose the frame that have longest distance which means it will not
+//be used in longest time
 
 int opt_evict() {
     
@@ -42,13 +45,16 @@ int opt_evict() {
         llnode *p=(llnode*)malloc(sizeof(llnode));
         p=opt_current;
         int distance=0;
+        //traverse the physical memory to calculate its' distance
         while (p&p->addr_t!=target_addr) {
             p=p->next;
             distance++;
         }
+        //if there is another p in later trace
         if (p) {
             opt_distance[i]=distance;
         }
+        //if p never appear in later trace
         else
         {
             return i;
@@ -67,6 +73,7 @@ int opt_evict() {
  * needed by the opt algorithm.
  * Input: The page table entry for the page that is being accessed.
  */
+//cause we know all the trace, when a p comes in, we simply move the linklist to the next node
 void opt_ref(pgtbl_entry_t *p) {
 
     count++;
@@ -81,6 +88,7 @@ void opt_ref(pgtbl_entry_t *p) {
 /* Initializes any data structures needed for this
  * replacement algorithm.
  */
+//when initialized, read all the trace from tracefile to later use
 void opt_init() {
 
     FILE* fp=fopen(tracefile,"r");
@@ -97,6 +105,7 @@ void opt_init() {
             sscanf(buf,"%c %lx",&type,&vaddr);
             
             llnode* new_node=(llnode*)malloc(sizeof(llnode));
+            //cause we do not need offset to choose the frame
             new_node->vaddr=(vaddr>>PAGE_SHIFT)<<PAGE_SHIFT;
             new_node->next=NULL;
             

@@ -31,6 +31,7 @@ llnode* lru_head;
 llnode* lru_tail;
 bool* lru_refed;
 
+//remove the head of the list
 int lru_evict() {
     int frame=lru_head->frame;
     llnode* new_head=lru_head->next;
@@ -44,8 +45,10 @@ int lru_evict() {
  * needed by the lru algorithm.
  * Input: The page table entry for the page that is being accessed.
  */
+//in lru algorithm, when a page is referenced, we move/record this page to the tail of the list
 void lru_ref(pgtbl_entry_t *p) {
 
+    //do not need offset to update a page
     int frame=p->frame>>PAGE_SHIFT;
     llnode* new_node=(llnode*)malloc(sizeof(llnode));
     new_node->frame=frame;
@@ -70,16 +73,18 @@ void lru_ref(pgtbl_entry_t *p) {
         prev=NULL;
         while (lru_current->frame!=frame) {
             prev=lru_current;
-            lru_current=lru_current->next;
+//            lru_current=lru_current->next;
         }
         
         if (prev!=NULL) {
             prev->next=lru_current->next;
             free(lru_current);
+//            lru_current=prev->next;
         }else
         {
             lru_head=lru_head->next;
             free(lru_current);
+//            lru_current=lru_head;
         }
         
     }
